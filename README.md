@@ -141,45 +141,6 @@ flowchart LR
 
 ---
 
-## v4.0 Parallel Specialist Architecture
-
-```mermaid
-flowchart TD
-    BRIEF(["Topic Brief"])
-
-    subgraph R_PHASE["Research Phase — Parallel Specialists"]
-        RS1["📚 Scholar\nAcademic sources\ncitations · verified facts"]
-        RS2["🏭 Practitioner\nReal-world examples\ncase studies · what works"]
-        RS3["⚡ Contrarian\nMinority views\nstrongest objections"]
-        RS4["🏛️ Historian\nEvolution of ideas\nwhy current views exist"]
-        RSYNTH["🔗 Research Synthesizer\nIntegrates · resolves conflicts\nidentifies gaps · validates coverage"]
-        RS1 & RS2 & RS3 & RS4 --> RSYNTH
-    end
-
-    subgraph A_PHASE["Analysis Phase — Parallel Specialists"]
-        AS1["🔬 Rigor Specialist\nDeutsch 5-tests on\nevery explanation"]
-        AS2["🌉 Synthesis Specialist\nNovel combinations\nbridges between views"]
-        AS3["⚔️ Adversary Specialist\nSteel-mans objections\nattacks best explanations"]
-        AS4["🔭 Implications Specialist\nTraces theoretical &\npractical consequences"]
-        ASYNTH["🔗 Analysis Synthesizer\nRanks explanations\ndocuments mechanism"]
-        AS1 & AS2 & AS3 & AS4 --> ASYNTH
-    end
-
-    subgraph W_PHASE["Writing Phase — Parallel Formats"]
-        WF1["📄 Article Writer"]
-        WF2["🐦 Thread Writer"]
-        WF3["💼 LinkedIn Writer"]
-        WF4["📧 Newsletter Writer"]
-    end
-
-    EDITOR["✂️ Editor Agent\nCross-format quality gate"]
-    OUTPUT(["🚀 Published Suite"])
-
-    BRIEF --> R_PHASE --> A_PHASE --> W_PHASE --> EDITOR --> OUTPUT
-```
-
----
-
 ## Repo Structure
 
 ```
@@ -206,7 +167,6 @@ content-factory/
 ├── shared/deutsch-framework/ # Epistemological foundation
 ├── tests/                   # Unit + integration test suite
 ├── CONTENT-FACTORY-v2.3-DESIGN.md
-├── PARALLEL-ARCHITECTURE-v4.md
 ├── HOW-THE-WORKFLOW-WORKS.md
 ├── EXECUTION_CHECKLIST.md
 └── run-content-factory.md
@@ -254,7 +214,6 @@ content-factory dashboard --view full
 |---|---|
 | `HOW-THE-WORKFLOW-WORKS.md` | Why the pipeline is designed this way |
 | `CONTENT-FACTORY-v2.3-DESIGN.md` | v2.3 architecture with Gemini CLI research |
-| `PARALLEL-ARCHITECTURE-v4.md` | v4.0 parallel specialist design |
 | `EXTERNAL-REVIEW-LESSONS.md` | What broke in external review & how the system was upgraded |
 | `AGENTS.md` | Orchestration instructions for Claude |
 | `GEMINI.md` | Orchestration instructions for Gemini |

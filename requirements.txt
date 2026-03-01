@@ -1,3 +1,12 @@
-google-generativeai>=0.8.3
-pillow
-pyyaml
+# Content Factory v2 — Runtime Dependencies
+#
+# The core Python package (src/content_factory/) uses the standard library only.
+# No third-party runtime packages are required.
+#
+# Dev dependencies (pytest, black, ruff, mypy) are declared in pyproject.toml:
+#   pip install -e ".[dev]"
+#
+# If you integrate external LLM or TTS APIs directly, install the relevant SDKs:
+#   pip install anthropic            # Claude API
+#   pip install google-generativeai  # Gemini API (used by Gemini CLI research agent)
+#   pip install elevenlabs           # ElevenLabs TTS (optional audio pipeline)

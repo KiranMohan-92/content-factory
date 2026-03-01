@@ -271,7 +271,7 @@ content-factory dashboard --view full
 | Doc | What it covers |
 |---|---|
 | `HOW-THE-WORKFLOW-WORKS.md` | Why the pipeline is designed this way |
-| `CONTENT-FACTORY-v2.3-DESIGN.md` | v2.3 architecture with Gemini CLI research |
+| `CONTENT-FACTORY-v2.3-DESIGN.md` | v2.3 architecture with Gemini CLI research and Codex brutal Critic agent|
 | `EXTERNAL-REVIEW-LESSONS.md` | What broke in external review & how the system was upgraded |
 | `AGENTS.md` | Orchestration instructions for Claude |
 | `GEMINI.md` | Orchestration instructions for Gemini |

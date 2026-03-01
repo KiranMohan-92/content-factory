@@ -1,0 +1,48 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+.cache/
+temp/
+
+# Credentials & API keys - NEVER commit
+github_pat_*.txt
+grok api.txt
+*.env
+*.key
+
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Archives
+*.tar.gz
+*.zip
+
+# Output directories (generated content, not config)
+outputs/
+output/
+out/
+audio/
+video-assets/
+video-articulation/
+publication-package/
+brainstorm-outputs/
+temp/
+
+# Obsidian workspace (local state, not config)
+.obsidian/workspace.json

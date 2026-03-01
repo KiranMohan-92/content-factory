@@ -1,0 +1,115 @@
+{
+  "topic": "Why AI-assisted teams still fail on decision quality",
+  "candidate_explanations": [
+    {
+      "explanation_id": "exp-001",
+      "title": "Tool Adoption Is Enough",
+      "claim": "Teams improve decision quality if they adopt more advanced AI tools because better tools create better decisions.",
+      "mechanism": "More tool adoption increases output speed and therefore decision quality.",
+      "scope": "General management and team decisions.",
+      "assumptions": [
+        "Output speed is a proxy for decision quality",
+        "Teams use tools correctly by default"
+      ],
+      "evidence": [
+        {
+          "source": "Industry blog summary",
+          "claim": "Teams report productivity gains after AI deployment",
+          "quality": "low",
+          "url": "",
+          "notes": "No direct experimental design"
+        }
+      ],
+      "integration_links": [],
+      "predictions": [],
+      "falsifiers": []
+    },
+    {
+      "explanation_id": "exp-002",
+      "title": "Evaluation Bottleneck Hypothesis",
+      "claim": "AI tools increase option generation, but decision quality improves only when teams upgrade evaluation protocols and accountability loops.",
+      "mechanism": "AI expands candidate actions; explicit evaluation criteria, post-decision review, and error ownership reduce false positives and calibration drift over time.",
+      "scope": "Cross-functional knowledge teams in product, policy, and operations.",
+      "assumptions": [
+        "Evaluation criteria can be operationalized",
+        "Teams can run regular post-decision reviews"
+      ],
+      "evidence": [
+        {
+          "source": "Nature Medicine clinical deployment studies",
+          "claim": "Model-assisted workflows vary by human evaluation protocol",
+          "quality": "high",
+          "url": "https://www.nature.com/",
+          "notes": "Human oversight design changes outcomes"
+        },
+        {
+          "source": "NIST AI RMF",
+          "claim": "Governance and measurement loops are needed for reliable AI use",
+          "quality": "high",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "notes": "Framework evidence is policy-oriented"
+        },
+        {
+          "source": "Industry implementation reports",
+          "claim": "Prompt quality without review loops leads to brittle outcomes",
+          "quality": "medium",
+          "url": "https://www.mckinsey.com/",
+          "notes": "Non-experimental but broad"
+        }
+      ],
+      "integration_links": [
+        "organizational learning theory",
+        "error-correction in cybernetics",
+        "decision science calibration"
+      ],
+      "predictions": [
+        {
+          "statement": "Teams with explicit evaluation rubrics will reduce avoidable decision reversals.",
+          "metric": "avoidable_decision_reversal_rate",
+          "threshold": "-20% vs baseline",
+          "horizon_days": 90
+        },
+        {
+          "statement": "Teams with monthly retrospective scoring will improve forecast calibration.",
+          "metric": "forecast_calibration_error",
+          "threshold": "-15% vs baseline",
+          "horizon_days": 120
+        }
+      ],
+      "falsifiers": [
+        {
+          "condition": "Evaluation-protocol teams do not outperform output-only teams on decision quality",
+          "test_method": "controlled A/B comparison across matched teams"
+        },
+        {
+          "condition": "Calibration metrics stay flat despite accountability loop adoption",
+          "test_method": "pre/post calibration audit with fixed scoring rubric"
+        }
+      ]
+    },
+    {
+      "explanation_id": "exp-003",
+      "title": "Culture-Only Explanation",
+      "claim": "Decision quality depends entirely on company culture and leadership mindset.",
+      "mechanism": "Strong culture motivates better decisions in all contexts.",
+      "scope": "All organizations and all decisions.",
+      "assumptions": [
+        "Culture dominates process design"
+      ],
+      "evidence": [
+        {
+          "source": "Leadership podcast",
+          "claim": "High-trust cultures make better choices",
+          "quality": "low",
+          "url": "",
+          "notes": "Anecdotal"
+        }
+      ],
+      "integration_links": [
+        "organizational behavior"
+      ],
+      "predictions": [],
+      "falsifiers": []
+    }
+  ]
+}

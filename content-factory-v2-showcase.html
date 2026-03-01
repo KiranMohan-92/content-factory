@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Factory v2 — Interactive Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=IBM+Plex+Sans:wght@300;400;500;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#030812;--panel:#07101f;--border:rgba(0,210,255,.14);
+  --cyan:#00D2FF;--red:#FF4D4D;--green:#00FF99;--gold:#FFB700;
+  --magenta:#FF3DFF;--purple:#A78BFA;--orange:#FF6B35;
+  --text:#DDE8FF;--text2:#6B85B0;--text3:#283650;
+  --mono:'IBM Plex Mono',monospace;--display:'Orbitron',monospace;--body:'IBM Plex Sans',sans-serif
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden}
+::selection{background:rgba(0,210,255,.25)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(0,210,255,.3)}
+
+/* ── TOP NAV */
+.tnav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(3,8,18,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,210,255,.1)}
+.tnav-logo{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase}
+.tnav-logo em{color:var(--gold);font-style:normal}
+.tnav-r{display:flex;align-items:center;gap:20px}
+.spill{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--green);background:rgba(0,255,153,.08);border:1px solid rgba(0,255,153,.3);border-radius:20px;padding:4px 12px}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nhint{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text3)}
+.sim-trigger{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--cyan);background:rgba(0,210,255,.08);border:1px solid rgba(0,210,255,.3);border-radius:6px;padding:6px 14px;cursor:pointer;transition:.2s;text-transform:uppercase}
+.sim-trigger:hover{background:rgba(0,210,255,.15);border-color:rgba(0,210,255,.5)}
+
+/* ── SIDE NAV */
+.snav{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:200;display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+.sni{display:flex;align-items:center;gap:8px;cursor:pointer}
+.sni-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--text3);opacity:0;transform:translateX(8px);transition:.2s;white-space:nowrap;text-transform:uppercase}
+.sni:hover .sni-lbl{opacity:1;transform:translateX(0)}
+.sni-dot{width:6px;height:6px;border-radius:50%;border:1px solid var(--text3);background:transparent;transition:all .3s;flex-shrink:0}
+.sni.active .sni-dot{width:8px;height:8px;border-color:var(--cyan);background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.sni.active .sni-lbl{color:var(--cyan);opacity:1;transform:translateX(0)}
+
+/* ── LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;padding-top:50px}
+
+/* ── LEFT PANEL */
+.left{position:sticky;top:50px;height:calc(100vh - 50px);display:flex;align-items:center;justify-content:center;padding:40px 32px 40px 48px;background:var(--bg);overflow:hidden}
+.left::before{content:'';position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(0,210,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,.022) 1px,transparent 1px);background-size:50px 50px}
+
+/* APP WINDOW */
+.aw{width:100%;max-width:480px;background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04) inset;position:relative;z-index:1;transition:border-color .6s,box-shadow .6s}
+.aw[data-a="0"]{border-color:rgba(0,210,255,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(0,210,255,.07)}
+.aw[data-a="1"]{border-color:rgba(255,77,77,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(255,77,77,.07)}
+.aw[data-a="2"]{border-color:rgba(0,210,255,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(0,210,255,.07)}
+.aw[data-a="3"]{border-color:rgba(0,255,153,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(0,255,153,.07)}
+.aw[data-a="4"]{border-color:rgba(255,183,0,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(255,183,0,.07)}
+.aw[data-a="5"]{border-color:rgba(255,61,255,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(255,61,255,.07)}
+.aw[data-a="6"]{border-color:rgba(255,107,53,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(255,107,53,.07)}
+.aw[data-a="7"]{border-color:rgba(167,139,250,.25);box-shadow:0 24px 80px #000a,0 0 40px rgba(167,139,250,.07)}
+.wchrome{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.06)}
+.wdots{display:flex;gap:5px}
+.wdots span{width:9px;height:9px;border-radius:50%;display:block}
+.wdots span:nth-child(1){background:#FF5F57}
+.wdots span:nth-child(2){background:#FFBD2E}
+.wdots span:nth-child(3){background:#28CA41}
+.wtitle{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;flex:1;text-align:center;transition:color .4s}
+.wbadge{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:2px 8px;border-radius:10px;background:rgba(0,210,255,.1);border:1px solid rgba(0,210,255,.2);color:var(--cyan);text-transform:uppercase}
+.wbody{height:420px;position:relative;overflow:hidden}
+
+/* VIEWS */
+.view{position:absolute;inset:0;opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s;pointer-events:none;overflow:hidden}
+.view.active{opacity:1;transform:translateY(0);pointer-events:all}
+
+/* ── V0: PIPELINE OVERVIEW */
+.v0{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 28px;gap:14px;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,210,255,.05),transparent)}
+.v0-row{display:flex;align-items:center;gap:0;width:100%}
+.v0-node{flex:1;background:rgba(0,0,0,.4);border-radius:8px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.06);transition:all .4s}
+.v0-node.cy{border-color:rgba(0,210,255,.25)}.v0-node.gr{border-color:rgba(0,255,153,.25)}.v0-node.go{border-color:rgba(255,183,0,.25)}.v0-node.ma{border-color:rgba(255,61,255,.25)}.v0-node.or{border-color:rgba(255,107,53,.3)}
+.v0-icon{font-size:16px}.v0-num{font-family:var(--mono);font-size:7px;color:var(--text3)}.v0-name{font-family:var(--display);font-size:7px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cy .v0-name{color:var(--cyan)}.gr .v0-name{color:var(--green)}.go .v0-name{color:var(--gold)}.ma .v0-name{color:var(--magenta)}.or .v0-name{color:var(--orange)}
+.v0-conn{width:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.v0-line{width:100%;height:2px;background:rgba(255,255,255,.07);position:relative;overflow:hidden;border-radius:2px}
+.v0-line::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;top:-4px;left:-10px;background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:flowH 2s linear infinite}
+.v0-conn.d1 .v0-line::after{animation-delay:.4s}.v0-conn.d2 .v0-line::after{animation-delay:.8s}.v0-conn.d3 .v0-line::after{animation-delay:1.2s}
+@keyframes flowH{0%{left:-10px;opacity:0}10%{opacity:1}90%{opacity:1}100%{left:calc(100% + 10px);opacity:0}}
+.v0-codex{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:8px;padding:10px 20px;display:flex;align-items:center;gap:12px;width:100%;max-width:320px}
+.v0-codex-icon{font-size:18px}.v0-codex-r{flex:1}.v0-codex-name{font-family:var(--display);font-size:9px;font-weight:700;color:var(--orange);letter-spacing:.08em;text-transform:uppercase}
+.v0-codex-sub{font-family:var(--mono);font-size:8px;color:var(--text3);margin-top:2px}.v0-codex-score{font-family:var(--display);font-size:16px;font-weight:900;color:var(--orange)}
+.v0-stat{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.12em}
+.v0-sdot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s infinite}
+
+/* ── V1: ERROR SCANNER */
+.v1{padding:18px;display:flex;flex-direction:column;gap:10px}
+.v1-hdr{display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em}
+.v1-scan{background:rgba(255,77,77,.15);border:1px solid rgba(255,77,77,.4);color:#FF6060;border-radius:4px;padding:2px 8px;animation:scanp 1.5s infinite}
+@keyframes scanp{0%,100%{opacity:1}50%{opacity:.5}}
+.v1-doc{background:rgba(0,0,0,.4);border-radius:6px;border:1px solid rgba(255,255,255,.06);padding:14px;font-size:11px;line-height:1.75;color:rgba(221,232,255,.7);height:215px;overflow:hidden}
+.err{background:rgba(255,77,77,.2);border-bottom:2px wavy rgba(255,77,77,.8);border-radius:2px;position:relative;cursor:default}
+.etip{position:absolute;bottom:calc(100% + 4px);left:0;background:rgba(30,5,5,.98);border:1px solid rgba(255,77,77,.5);color:#FF8080;font-family:var(--mono);font-size:9px;padding:4px 8px;border-radius:4px;white-space:nowrap;z-index:10;opacity:0;transform:translateY(4px);transition:.2s;pointer-events:none}
+.err:hover .etip{opacity:1;transform:translateY(0)}
+.v1-score{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,77,77,.08);border:1px solid rgba(255,77,77,.2);border-radius:6px;font-family:var(--mono);font-size:10px}
+.v1-num{color:#FF4D4D;font-weight:700;font-size:18px}.v1-b{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px}
+.v1-bf{height:100%;width:42%;background:linear-gradient(90deg,#FF4D4D,#FF7070);border-radius:2px}
+.v1-fails{display:flex;flex-direction:column;gap:5px}
+.v1-f{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--text2);opacity:0;animation:appear .3s ease forwards}
+.v1-f:nth-child(1){animation-delay:.5s}.v1-f:nth-child(2){animation-delay:1s}.v1-f:nth-child(3){animation-delay:1.5s}
+@keyframes appear{to{opacity:1}}
+.v1-fi{color:var(--red)}
+
+/* ── V2: RESEARCH TERMINAL */
+.v2{background:#000;display:flex;flex-direction:column;font-family:var(--mono)}
+.v2-bar{background:rgba(0,210,255,.07);border-bottom:1px solid rgba(0,210,255,.12);padding:7px 14px;display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
+.v2-body{padding:14px;flex:1;overflow:hidden;line-height:1.9;font-size:11px;color:rgba(0,210,255,.8)}
+.v2p{color:var(--green)}.v2c{color:rgba(255,255,255,.9)}.v2d{color:rgba(0,210,255,.35)}.v2g{color:var(--green)}.v2s{color:var(--gold)}
+.v2-ln{opacity:0}.v2-ln.show{animation:appear .1s ease forwards}
+.v2-cur{display:inline-block;width:7px;height:12px;background:var(--cyan);vertical-align:middle;animation:cblink 1s step-end infinite}
+@keyframes cblink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── V3: DEUTSCH TESTS */
+.v3{padding:16px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.v3-hdr{font-family:var(--mono);font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:.15em;display:flex;justify-content:space-between;margin-bottom:2px}
+.v3t{background:rgba(0,0,0,.3);border-radius:6px;border:1px solid rgba(255,255,255,.06);padding:9px 11px;opacity:0;animation:appear .4s ease forwards}
+.v3t:nth-child(2){animation-delay:.2s}.v3t:nth-child(3){animation-delay:.45s}.v3t:nth-child(4){animation-delay:.7s}.v3t:nth-child(5){animation-delay:.95s}.v3t:nth-child(6){animation-delay:1.2s}
+.v3-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.v3-tn{font-family:var(--mono);font-size:10px;flex:1;color:var(--text)}
+.v3-res{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.1em;opacity:0}
+.v3-res.pass{background:rgba(0,255,153,.12);border:1px solid rgba(0,255,153,.3);color:var(--green)}
+.v3-bar{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.v3-bf{height:100%;background:var(--green);border-radius:2px;width:0%;transition:width 1.2s ease}
+.v3-note{font-size:9px;color:var(--text3);margin-top:3px;font-family:var(--mono)}
+.v3t.go .v3-bf{width:var(--w,100%)}.v3t.go .v3-res{animation:appear .3s ease 1.3s forwards}
+.v3-conc{background:rgba(0,255,153,.06);border:1px solid rgba(0,255,153,.2);border-radius:6px;padding:9px 12px;display:flex;align-items:center;gap:10px;opacity:0;animation:appear .4s ease 1.8s forwards}
+.v3-ct{font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:.08em}
+
+/* ── V4: WRITER FORMATS */
+.v4{padding:16px;display:flex;flex-direction:column;gap:7px}
+.v4-hdr{font-family:var(--mono);font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.15em;display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.v4-spin{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,183,0,.2);border-top-color:var(--gold);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.v4f{background:rgba(0,0,0,.35);border-radius:6px;border:1px solid rgba(255,255,255,.06);padding:9px 11px;opacity:0;animation:appear .3s ease forwards}
+.v4f:nth-child(2){animation-delay:.1s}.v4f:nth-child(3){animation-delay:.22s}.v4f:nth-child(4){animation-delay:.34s}.v4f:nth-child(5){animation-delay:.46s}.v4f:nth-child(6){animation-delay:.58s}.v4f:nth-child(7){animation-delay:.7s}
+.v4-ft{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.v4-fi{font-size:13px}.v4-fn{font-family:var(--mono);font-size:10px;color:var(--text);flex:1}.v4-fm{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.v4-fb{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.v4-fbf{height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width 1.5s ease}
+.v4f.go .v4-fbf{width:var(--w,100%)}.v4-done{color:var(--green);font-size:9px;font-family:var(--mono);opacity:0}.v4f.go .v4-done{animation:appear .3s ease 1.6s forwards}
+.v4-tot{background:rgba(255,183,0,.06);border:1px solid rgba(255,183,0,.2);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:10px;color:var(--gold);display:flex;align-items:center;justify-content:space-between;opacity:0;animation:appear .4s ease 2.5s forwards}
+
+/* ── V5: EDITOR GATE */
+.v5{padding:16px;display:flex;flex-direction:column;gap:8px}
+.v5-hdr{font-family:var(--mono);font-size:9px;color:var(--magenta);text-transform:uppercase;letter-spacing:.15em}
+.v5-gauge{background:rgba(0,0,0,.4);border-radius:8px;border:1px solid rgba(255,61,255,.15);padding:16px;text-align:center;margin-bottom:4px}
+.v5-val{font-family:var(--display);font-size:44px;font-weight:900;color:var(--magenta);text-shadow:0 0 30px rgba(255,61,255,.5)}
+.v5-max{font-family:var(--mono);font-size:13px;color:var(--text3)}.v5-lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-top:4px}
+.v5-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:10px}
+.v5-bf{height:100%;background:linear-gradient(90deg,var(--magenta),rgba(255,61,255,.6));border-radius:2px;width:0%;transition:width 2.5s ease}
+.v5-bf.go{width:94.5%}
+.v5-chk{display:flex;align-items:center;gap:8px;padding:6px 9px;background:rgba(0,0,0,.25);border-radius:5px;font-family:var(--mono);font-size:10px;opacity:0;animation:appear .3s ease forwards}
+.v5-chk:nth-child(3){animation-delay:.4s}.v5-chk:nth-child(4){animation-delay:.7s}.v5-chk:nth-child(5){animation-delay:1s}.v5-chk:nth-child(6){animation-delay:1.3s}
+.v5-ci{font-size:11px;flex-shrink:0}.v5-cn{color:var(--text2);flex:1}.v5-cs{color:var(--text);font-weight:500}
+.v5-gate{background:rgba(255,61,255,.06);border:1px solid rgba(255,61,255,.25);border-radius:6px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;font-family:var(--mono);font-size:9px;text-transform:uppercase;color:var(--magenta);opacity:0;animation:appear .4s ease 2.5s forwards}
+.v5-gp{color:var(--green)}
+
+/* ── V6: CODEX SCORER */
+.v6{padding:16px;display:flex;flex-direction:column;gap:6px}
+.v6-hdr{font-family:var(--mono);font-size:9px;color:var(--orange);text-transform:uppercase;letter-spacing:.15em;display:flex;justify-content:space-between;margin-bottom:4px}
+.v6d{opacity:0;animation:appear .3s ease forwards}
+.v6d:nth-child(2){animation-delay:.1s}.v6d:nth-child(3){animation-delay:.22s}.v6d:nth-child(4){animation-delay:.34s}.v6d:nth-child(5){animation-delay:.46s}.v6d:nth-child(6){animation-delay:.58s}.v6d:nth-child(7){animation-delay:.7s}.v6d:nth-child(8){animation-delay:.82s}
+.v6-dl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text2);margin-bottom:3px}
+.v6-ds{color:var(--text)}.v6-db{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.v6-dbf{height:100%;background:linear-gradient(90deg,var(--orange),rgba(255,140,80,.7));border-radius:3px;width:0%;transition:width 1.5s ease}
+.v6d.go .v6-dbf{width:var(--w,100%)}
+.v6-tot{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.25);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;opacity:0;animation:appear .4s ease 2s forwards}
+.v6-ts{font-family:var(--display);font-size:32px;font-weight:900;color:var(--orange);text-shadow:0 0 20px rgba(255,107,53,.5)}
+.v6-tr{flex:1}.v6-td{font-family:var(--mono);font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.1em}
+.v6-tl{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px}
+.v6-thresh{font-family:var(--mono);font-size:9px;color:var(--text3);text-align:right}
+
+/* ── V7: ORCHESTRATOR */
+.v7{padding:16px;display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:10px}
+.v7-hdr{color:var(--purple);text-transform:uppercase;letter-spacing:.15em;font-size:9px;margin-bottom:2px}
+.v7-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.v7s{background:rgba(0,0,0,.4);border-radius:6px;border:1px solid rgba(255,255,255,.06);padding:8px 10px;transition:all .4s}
+.v7s.on{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.07)}
+.v7s.dn{border-color:rgba(0,255,153,.2)}
+.v7-sn{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}.v7s.on .v7-sn{color:var(--purple)}.v7s.dn .v7-sn{color:var(--green)}
+.v7-si{width:5px;height:5px;border-radius:50%;background:var(--text3);margin-bottom:4px;transition:all .4s}
+.v7s.on .v7-si{background:var(--purple);box-shadow:0 0 8px var(--purple);animation:blink 1s infinite}.v7s.dn .v7-si{background:var(--green);box-shadow:0 0 6px var(--green)}
+.v7-sd{font-size:8px;color:var(--text3);margin-top:3px}.v7s.on .v7-sd{color:rgba(167,139,250,.7)}
+.v7-log{background:rgba(0,0,0,.5);border-radius:6px;border:1px solid rgba(255,255,255,.05);padding:8px 10px;font-size:9px;line-height:1.75;color:rgba(167,139,250,.7)}
+.v7-ckpt{background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:6px;padding:7px 10px;display:flex;align-items:center;gap:8px}
+.v7-ci{color:var(--purple)}.v7-ct{color:var(--text2);font-size:9px}
+
+/* ── RIGHT PANEL */
+.right{padding:0}
+.section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 48px 80px 40px;position:relative}
+.section::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(0,210,255,.08),transparent)}
+
+/* TEXT */
+.eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:'';display:block;width:20px;height:1px;background:currentColor}
+.ptag{font-family:var(--mono);font-size:8px;letter-spacing:.15em;padding:3px 10px;border-radius:20px;text-transform:uppercase}
+.tc{background:rgba(0,210,255,.1);border:1px solid rgba(0,210,255,.3);color:var(--cyan)}
+.tg{background:rgba(0,255,153,.1);border:1px solid rgba(0,255,153,.3);color:var(--green)}
+.tgo{background:rgba(255,183,0,.1);border:1px solid rgba(255,183,0,.3);color:var(--gold)}
+.tm{background:rgba(255,61,255,.1);border:1px solid rgba(255,61,255,.3);color:var(--magenta)}
+.to{background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.3);color:var(--orange)}
+.tp{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);color:var(--purple)}
+.tr{background:rgba(255,77,77,.1);border:1px solid rgba(255,77,77,.3);color:var(--red)}
+.stitle{font-family:var(--display);font-size:clamp(20px,2.8vw,30px);font-weight:900;letter-spacing:.03em;line-height:1.15;margin-bottom:14px}
+.ssub{font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:24px;max-width:480px}
+
+/* HERO */
+.hero-stats{display:flex;gap:24px;margin-bottom:32px;flex-wrap:wrap}
+.stat-v{font-family:var(--display);font-size:26px;font-weight:900;color:var(--cyan)}
+.stat-l{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.sim-btn{display:inline-flex;align-items:center;gap:10px;background:rgba(0,210,255,.08);border:1px solid rgba(0,210,255,.35);border-radius:8px;padding:12px 24px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--cyan);cursor:pointer;transition:all .3s;text-transform:uppercase;user-select:none}
+.sim-btn:hover{background:rgba(0,210,255,.15);border-color:rgba(0,210,255,.6);box-shadow:0 0 20px rgba(0,210,255,.15)}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.card{background:rgba(0,0,0,.3);border-radius:8px;border:1px solid rgba(255,255,255,.06);padding:14px}
+.card-icon{font-size:18px;margin-bottom:8px}.card-title{font-family:var(--display);font-size:10px;font-weight:700;letter-spacing:.08em;margin-bottom:6px}.card-text{font-size:12px;line-height:1.6;color:var(--text2)}
+
+/* TABLE */
+.stbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px}
+.stbl th{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);text-align:left;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.stbl td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text2);vertical-align:top}
+.stbl td:first-child{font-family:var(--mono);font-size:11px;color:var(--text);white-space:nowrap}
+.stbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* QUOTE */
+.dquote{background:rgba(0,255,153,.04);border-left:2px solid var(--green);padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:20px;font-style:italic;font-size:13px;color:var(--text2);line-height:1.7}
+.dattr{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:6px;font-style:normal}
+
+/* FLOW */
+.flow{display:flex;flex-direction:column;gap:0;margin-bottom:24px}
+.fstep{display:flex;gap:14px}
+.fstep-l{display:flex;flex-direction:column;align-items:center}
+.fdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;flex-shrink:0}
+.fline{flex:1;width:1px;background:rgba(255,255,255,.07);margin:3px 0;min-height:18px}
+.fcontent{padding:4px 0 20px}.ftitle{font-family:var(--mono);font-size:11px;font-weight:500;margin-bottom:4px}.fdesc{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* SCORE COMPARE */
+.scompare{display:flex;gap:12px;margin-bottom:24px}
+.sbox{flex:1;background:rgba(0,0,0,.3);border-radius:8px;border:1px solid rgba(255,255,255,.07);padding:14px;text-align:center}
+.sbox-n{font-family:var(--display);font-size:34px;font-weight:900}.sbox-l{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}.sbox-s{font-size:11px;color:var(--text2);margin-top:6px}
+.sb-bad .sbox-n{color:var(--red)}.sb-good .sbox-n{color:var(--green)}
+
+/* CODEX CHECKS */
+.cchecks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+.cc{background:rgba(255,107,53,.05);border:1px solid rgba(255,107,53,.15);border-radius:6px;padding:10px 12px}
+.cc-n{font-family:var(--mono);font-size:10px;color:var(--orange);margin-bottom:4px}.cc-d{font-size:11px;color:var(--text2);line-height:1.5}
+
+/* ITERATION BOXES */
+.iters{display:flex;gap:8px;margin-bottom:24px}
+.iter{flex:1;background:rgba(0,0,0,.3);border-radius:8px;border:1px solid rgba(255,255,255,.07);padding:12px;text-align:center}
+.iter-num{font-family:var(--display);font-size:20px;font-weight:900;color:var(--orange);margin-bottom:4px}
+.iter-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
+.iter-desc{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.5}
+.iter.escalate{border-color:rgba(255,183,0,.2)}.iter.escalate .iter-num{color:var(--gold)}
+
+/* STATE FLOW */
+.sf{display:flex;flex-direction:column;gap:0;font-family:var(--mono);font-size:11px;margin-bottom:24px}
+.sfrow{display:flex;gap:12px}
+.sfl{display:flex;flex-direction:column;align-items:center}
+.sf-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--text3);flex-shrink:0;margin-top:3px;transition:all .4s}
+.sf-line{flex:1;width:1px;background:rgba(255,255,255,.07);min-height:14px}
+.sf-info{padding:2px 0 14px}
+.sf-name{color:var(--text);margin-bottom:2px}.sf-detail{font-size:9px;color:var(--text3)}
+.sf-active .sf-dot{border-color:var(--purple);background:var(--purple);box-shadow:0 0 8px var(--purple);animation:blink 1.2s infinite}
+.sf-active .sf-name{color:var(--purple)}.sf-done .sf-dot{border-color:var(--green);background:var(--green)}.sf-done .sf-name{color:var(--green)}
+
+/* CLI */
+.cli{background:#000;border-radius:8px;border:1px solid rgba(255,255,255,.08);padding:14px 16px;font-family:var(--mono);font-size:11px;line-height:1.8;margin-bottom:20px}
+.clip{color:var(--green)}.clic{color:rgba(255,255,255,.9)}.clid{color:rgba(255,255,255,.3)}
+
+/* ── PIPELINE SIMULATOR OVERLAY */
+.sim-overlay{position:fixed;inset:0;z-index:500;background:rgba(3,8,18,.96);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;pointer-events:none;transition:opacity .4s}
+.sim-overlay.show{opacity:1;pointer-events:all}
+.sim-hdr{text-align:center}
+.sim-title{font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.sim-topic{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.sim-topic em{color:var(--text);font-style:normal}
+.sim-phases{display:flex;align-items:flex-start;gap:0}
+.sim-ph{display:flex;flex-direction:column;align-items:center;gap:8px;width:110px}
+.sim-ph-ic{font-size:26px;opacity:.25;transition:opacity .4s,transform .4s}
+.sim-ph-nm{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);transition:color .4s;text-align:center}
+.sim-ph-bar{width:70%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.sim-ph-fill{height:100%;width:0%;border-radius:2px;transition:width 2.5s ease}
+.sim-ph-st{font-family:var(--mono);font-size:8px;color:var(--text3);min-height:13px;transition:color .3s}
+.sim-ph.active .sim-ph-ic{opacity:1;transform:scale(1.1)}
+.sim-ph.active .sim-ph-nm{color:var(--cyan)}.sim-ph.active .sim-ph-st{color:var(--cyan)}
+.sim-ph.done .sim-ph-ic{opacity:.8}.sim-ph.done .sim-ph-nm{color:var(--green)}.sim-ph.done .sim-ph-st{color:var(--green)}
+.sim-conn{width:32px;height:2px;background:rgba(255,255,255,.07);flex-shrink:0;margin-top:20px;position:relative;overflow:hidden;border-radius:2px}
+.sim-conn::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;top:-4px;left:-10px;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.sim-conn.active::after{animation:flowH .8s linear infinite}
+.sim-final{text-align:center;opacity:0;transition:opacity .6s}
+.sim-final.show{opacity:1}
+.sim-final-s{font-family:var(--display);font-size:60px;font-weight:900;color:var(--green);text-shadow:0 0 40px rgba(0,255,153,.4);line-height:1}
+.sim-final-l{font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.15em;margin-top:6px}
+.sim-final-badges{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.sim-badge{font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:20px;background:rgba(0,255,153,.1);border:1px solid rgba(0,255,153,.3);color:var(--green)}
+.sim-close{font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;text-transform:uppercase;letter-spacing:.12em;border:1px solid rgba(255,255,255,.1);padding:8px 20px;border-radius:6px;transition:all .2s}
+.sim-close:hover{color:var(--text);border-color:rgba(255,255,255,.3)}
+.sim-log{font-family:var(--mono);font-size:10px;color:var(--text3);min-height:16px;transition:color .3s}
+.sim-log.ok{color:var(--green)}.sim-log.info{color:var(--cyan)}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}.left{display:none}.snav{display:none}
+  .section{padding:60px 24px}.cards{grid-template-columns:1fr}
+  .scompare{flex-direction:column}.cchecks{grid-template-columns:1fr}.iters{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="tnav">
+  <div class="tnav-logo">Content <em>Factory</em> v2</div>
+  <div class="tnav-r">
+    <div class="spill"><span class="sdot"></span>v2.3 ACTIVE</div>
+    <span class="nhint">↓ scroll to explore</span>
+    <div class="sim-trigger" onclick="startSim()">▶ Simulate Pipeline</div>
+  </div>
+</nav>
+
+<!-- SIDE NAV -->
+<nav class="snav" id="snav">
+  <div class="sni active" onclick="scrollTo(0)"><span class="sni-lbl">Pipeline</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(1)"><span class="sni-lbl">The Problem</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(2)"><span class="sni-lbl">Research</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(3)"><span class="sni-lbl">Analysis</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(4)"><span class="sni-lbl">Writing</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(5)"><span class="sni-lbl">Editing</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(6)"><span class="sni-lbl">CODEX Critic</span><span class="sni-dot"></span></div>
+  <div class="sni" onclick="scrollTo(7)"><span class="sni-lbl">Orchestrator</span><span class="sni-dot"></span></div>
+</nav>
+
+<!-- PIPELINE SIMULATOR -->
+<div class="sim-overlay" id="simOverlay">
+  <div class="sim-hdr">
+    <div class="sim-title">Pipeline Simulation</div>
+    <div class="sim-topic">Topic: <em>"Why goal-setting frameworks fail"</em></div>
+  </div>
+  <div class="sim-phases">
+    <div class="sim-ph" id="sph0">
+      <div class="sim-ph-ic">🔍</div>
+      <div class="sim-ph-nm">Research</div>
+      <div class="sim-ph-bar"><div class="sim-ph-fill" id="spf0" style="background:var(--cyan)"></div></div>
+      <div class="sim-ph-st" id="sps0"></div>
+    </div>
+    <div class="sim-conn" id="sc0"></div>
+    <div class="sim-ph" id="sph1">
+      <div class="sim-ph-ic">🧠</div>
+      <div class="sim-ph-nm">Analysis</div>
+      <div class="sim-ph-bar"><div class="sim-ph-fill" id="spf1" style="background:var(--green)"></div></div>
+      <div class="sim-ph-st" id="sps1"></div>
+    </div>
+    <div class="sim-conn" id="sc1"></div>
+    <div class="sim-ph" id="sph2">
+      <div class="sim-ph-ic">✍️</div>
+      <div class="sim-ph-nm">Writing</div>
+      <div class="sim-ph-bar"><div class="sim-ph-fill" id="spf2" style="background:var(--gold)"></div></div>
+      <div class="sim-ph-st" id="sps2"></div>
+    </div>
+    <div class="sim-conn" id="sc2"></div>
+    <div class="sim-ph" id="sph3">
+      <div class="sim-ph-ic">✂️</div>
+      <div class="sim-ph-nm">Editing</div>
+      <div class="sim-ph-bar"><div class="sim-ph-fill" id="spf3" style="background:var(--magenta)"></div></div>
+      <div class="sim-ph-st" id="sps3"></div>
+    </div>
+    <div class="sim-conn" id="sc3"></div>
+    <div class="sim-ph" id="sph4">
+      <div class="sim-ph-ic">⚡</div>
+      <div class="sim-ph-nm">CODEX</div>
+      <div class="sim-ph-bar"><div class="sim-ph-fill" id="spf4" style="background:var(--orange)"></div></div>
+      <div class="sim-ph-st" id="sps4"></div>
+    </div>
+  </div>
+  <div class="sim-log" id="simLog"></div>
+  <div class="sim-final" id="simFinal">
+    <div class="sim-final-s" id="simScore">9.7</div>
+    <div class="sim-final-l">CODEX Approved · World-Class</div>
+    <div class="sim-final-badges">
+      <span class="sim-badge">Article ✓</span>
+      <span class="sim-badge">Thread ✓</span>
+      <span class="sim-badge">LinkedIn ✓</span>
+      <span class="sim-badge">Newsletter ✓</span>
+    </div>
+  </div>
+  <div class="sim-close" onclick="closeSim()">✕ Close</div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left">
+    <div class="aw" id="aw" data-a="0">
+      <div class="wchrome">
+        <div class="wdots"><span></span><span></span><span></span></div>
+        <div class="wtitle" id="wtitle">content-factory — pipeline</div>
+        <div class="wbadge" id="wbadge">v2.3</div>
+      </div>
+      <div class="wbody">
+
+        <!-- V0: PIPELINE OVERVIEW -->
+        <div class="view v0 active" id="view0">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.2em;margin-bottom:20px">4-Phase Sequential Pipeline</div>
+          <div class="v0-row">
+            <div class="v0-node cy"><div class="v0-icon">🔍</div><div class="v0-num">01</div><div class="v0-name">Research</div></div>
+            <div class="v0-conn d1"><div class="v0-line"></div></div>
+            <div class="v0-node gr"><div class="v0-icon">🧠</div><div class="v0-num">02</div><div class="v0-name">Analyze</div></div>
+            <div class="v0-conn d2"><div class="v0-line"></div></div>
+            <div class="v0-node go"><div class="v0-icon">✍️</div><div class="v0-num">03</div><div class="v0-name">Write</div></div>
+            <div class="v0-conn d3"><div class="v0-line"></div></div>
+            <div class="v0-node ma"><div class="v0-icon">✂️</div><div class="v0-num">04</div><div class="v0-name">Edit</div></div>
+          </div>
+          <div style="width:100%;display:flex;justify-content:center;margin:12px 0 4px"><div style="font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:.12em">↓ PHASE 4.5</div></div>
+          <div class="v0-codex">
+            <div class="v0-codex-icon">⚡</div>
+            <div class="v0-codex-r">
+              <div class="v0-codex-name">CODEX Brutal Critic</div>
+              <div class="v0-codex-sub">Final gatekeeper · Headless mode</div>
+            </div>
+            <div class="v0-codex-score">9.5+</div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="v0-stat"><span class="v0-sdot"></span>Pipeline operational · All agents ready</div>
+        </div>
+
+        <!-- V1: ERROR SCANNER -->
+        <div class="view" id="view1">
+          <div class="v1">
+            <div class="v1-hdr"><span>Draft Quality Scan</span><span class="v1-scan">● Scanning…</span></div>
+            <div class="v1-doc">
+              <p>Goal setting is <span class="err">widely proven to work<span class="etip">Unfalsifiable claim — no mechanism</span></span> across all domains. Studies show that <span class="err">people who set goals achieve more<span class="etip">Correlation ≠ causation, no controls</span></span>. The key is to be specific and motivated. <span class="err">Everyone can benefit from SMART goals<span class="etip">Counterexamples ignored: creativity, flow</span></span> in work, life, and relationships. This approach has transformed millions of lives worldwide.</p>
+              <p style="margin-top:10px">The science is clear: <span class="err">goal-setting always improves performance<span class="etip">Absolute claim, no scope limitation</span></span>. Simply write your goals and review them daily.</p>
+            </div>
+            <div class="v1-score">
+              <div class="v1-num">4.2</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3)">/10</div>
+              <div class="v1-b"><div class="v1-bf"></div></div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--red)">REJECTED</div>
+            </div>
+            <div class="v1-fails">
+              <div class="v1-f"><span class="v1-fi">✗</span>Unfalsifiable claims — no error-correction possible</div>
+              <div class="v1-f"><span class="v1-fi">✗</span>No steelmanned counterarguments present</div>
+              <div class="v1-f"><span class="v1-fi">✗</span>Zero hard-to-vary explanatory structure</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V2: RESEARCH TERMINAL -->
+        <div class="view" id="view2">
+          <div class="v2">
+            <div class="v2-bar">⬡ Gemini CLI · Research Agent · v2.3</div>
+            <div class="v2-body" id="v2body">
+              <div class="v2-ln"><span class="v2p">›</span> <span class="v2c">content-factory research --topic "goal-setting"</span></div>
+              <div class="v2-ln"><span class="v2d">Classifying domain…</span></div>
+              <div class="v2-ln"><span class="v2d">→ practical · intermediate · debated · evolving</span></div>
+              <div class="v2-ln"><span class="v2p">›</span> <span class="v2c">gemini search --deep "goal setting psychology failure modes"</span></div>
+              <div class="v2-ln"><span class="v2s">✓ Source 1</span> <span class="v2d">Locke & Latham (2019) — 147 citations</span></div>
+              <div class="v2-ln"><span class="v2s">✓ Source 2</span> <span class="v2d">Oettingen (2014) — mental contrasting</span></div>
+              <div class="v2-ln"><span class="v2s">✓ Source 3</span> <span class="v2d">Seligman — WOOP framework meta-analysis</span></div>
+              <div class="v2-ln"><span class="v2s">✓ Source 4</span> <span class="v2d">Baumeister — ego depletion counterevidence</span></div>
+              <div class="v2-ln"><span class="v2d">Steelman check: goal-setting harm cases…</span></div>
+              <div class="v2-ln"><span class="v2s">✓ Source 5</span> <span class="v2d">Ordóñez et al. — Goals Gone Wild, HBS</span></div>
+              <div class="v2-ln"><span class="v2g">✓ Source diversity: 5 domains, 3 contrarian</span></div>
+              <div class="v2-ln"><span class="v2g">✓ Steelman requirement: met</span></div>
+              <div class="v2-ln"><span class="v2g">✓ Evidence hygiene: all claims traceable</span></div>
+              <div class="v2-ln"><span class="v2p">›</span> <span class="v2c">→ research.md written (3,847 words)</span> <span class="v2-cur"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V3: DEUTSCH TESTS -->
+        <div class="view" id="view3">
+          <div class="v3">
+            <div class="v3-hdr"><span>Deutsch Epistemological Framework</span><span>5 Tests</span></div>
+            <div class="v3t" style="--w:97%">
+              <div class="v3-top"><span class="v3-tn">Hard-to-Vary Test</span><span class="v3-res pass">Pass</span></div>
+              <div class="v3-bar"><div class="v3-bf"></div></div>
+              <div class="v3-note">Explanation breaks if mechanism changes — good.</div>
+            </div>
+            <div class="v3t" style="--w:94%">
+              <div class="v3-top"><span class="v3-tn">Falsifiability Test</span><span class="v3-res pass">Pass</span></div>
+              <div class="v3-bar"><div class="v3-bf"></div></div>
+              <div class="v3-note">Clear conditions for refutation identified.</div>
+            </div>
+            <div class="v3t" style="--w:91%">
+              <div class="v3-top"><span class="v3-tn">Best Explanation Test</span><span class="v3-res pass">Pass</span></div>
+              <div class="v3-bar"><div class="v3-bf"></div></div>
+              <div class="v3-note">No simpler rival explanation accounts for data.</div>
+            </div>
+            <div class="v3t" style="--w:96%">
+              <div class="v3-top"><span class="v3-tn">Arbitrariness Elimination</span><span class="v3-res pass">Pass</span></div>
+              <div class="v3-bar"><div class="v3-bf"></div></div>
+              <div class="v3-note">Every claim is load-bearing, none decorative.</div>
+            </div>
+            <div class="v3t" style="--w:89%">
+              <div class="v3-top"><span class="v3-tn">Problem-Solution Fit</span><span class="v3-res pass">Pass</span></div>
+              <div class="v3-bar"><div class="v3-bf"></div></div>
+              <div class="v3-note">Explanation solves the actual stated problem.</div>
+            </div>
+            <div class="v3-conc"><span style="font-size:18px">✅</span><div><div class="v3-ct">All 5 Deutsch tests passed</div><div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px">→ analysis.md validated · proceeding to Writer</div></div></div>
+          </div>
+        </div>
+
+        <!-- V4: WRITER FORMATS -->
+        <div class="view" id="view4">
+          <div class="v4">
+            <div class="v4-hdr"><span class="v4-spin"></span> Writer Agent · Generating Formats</div>
+            <div class="v4f" style="--w:100%"><div class="v4-ft"><span class="v4-fi">📄</span><span class="v4-fn">Long-form Article</span><span class="v4-fm">2,400 words</span></div><div class="v4-fb"><div class="v4-fbf"></div></div><div class="v4-done">✓ Complete</div></div>
+            <div class="v4f" style="--w:88%"><div class="v4-ft"><span class="v4-fi">🐦</span><span class="v4-fn">Twitter / X Thread</span><span class="v4-fm">22 tweets</span></div><div class="v4-fb"><div class="v4-fbf"></div></div><div class="v4-done">✓ Complete</div></div>
+            <div class="v4f" style="--w:92%"><div class="v4-ft"><span class="v4-fi">💼</span><span class="v4-fn">LinkedIn Post</span><span class="v4-fm">380 words</span></div><div class="v4-fb"><div class="v4-fbf"></div></div><div class="v4-done">✓ Complete</div></div>
+            <div class="v4f" style="--w:85%"><div class="v4-ft"><span class="v4-fi">📧</span><span class="v4-fn">Newsletter Section</span><span class="v4-fm">600 words</span></div><div class="v4-fb"><div class="v4-fbf"></div></div><div class="v4-done">✓ Complete</div></div>
+            <div class="v4f" style="--w:96%"><div class="v4-ft"><span class="v4-fi">🎬</span><span class="v4-fn">YouTube Script</span><span class="v4-fm">8 min runtime</span></div><div class="v4-fb"><div class="v4-fbf"></div></div><div class="v4-done">✓ Complete</div></div>
+            <div class="v4f" style="--w:78%"><div class="v4-ft"><span class="v4-fi">🎙️</span><span class="v4-fn">Podcast Notes</span><span class="v4-fm">Show notes + timestamps</span></div><div class="v4-fb"><div class="v4-fbf"></div></div><div class="v4-done">✓ Complete</div></div>
+            <div class="v4-tot"><span>6 formats generated</span><span style="color:var(--green)">→ Editor Agent</span></div>
+          </div>
+        </div>
+
+        <!-- V5: EDITOR GATE -->
+        <div class="view" id="view5">
+          <div class="v5">
+            <div class="v5-hdr">Editor Agent · Quality Gate</div>
+            <div class="v5-gauge">
+              <div class="v5-val" id="v5val">9.4</div><span class="v5-max">&thinsp;/10</span>
+              <div class="v5-lbl">Editor Score</div>
+              <div class="v5-bar"><div class="v5-bf" id="v5bf"></div></div>
+            </div>
+            <div class="v5-chk"><span class="v5-ci">✓</span><span class="v5-cn">Fact verification</span><span class="v5-cs">All claims sourced</span></div>
+            <div class="v5-chk"><span class="v5-ci">✓</span><span class="v5-cn">Logic chain</span><span class="v5-cs">No gaps found</span></div>
+            <div class="v5-chk"><span class="v5-ci">✓</span><span class="v5-cn">Format adherence</span><span class="v5-cs">Template matched</span></div>
+            <div class="v5-chk"><span class="v5-ci">✓</span><span class="v5-cn">Engagement hooks</span><span class="v5-cs">First 100 words strong</span></div>
+            <div class="v5-gate"><span>Threshold ≥ 9.3</span><span class="v5-gp">✓ APPROVED → CODEX</span></div>
+          </div>
+        </div>
+
+        <!-- V6: CODEX SCORER -->
+        <div class="view" id="view6">
+          <div class="v6">
+            <div class="v6-hdr"><span>⚡ CODEX Brutal Critic</span><span>9.5 threshold</span></div>
+            <div class="v6d" style="--w:97%"><div class="v6-dl"><span>Argument Strength</span><span class="v6-ds">9.7 · 20%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6d" style="--w:94%"><div class="v6-dl"><span>Factual Precision</span><span class="v6-ds">9.4 · 15%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6d" style="--w:96%"><div class="v6-dl"><span>Logical Structure</span><span class="v6-ds">9.6 · 15%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6d" style="--w:95%"><div class="v6-dl"><span>Counterargument Depth</span><span class="v6-ds">9.5 · 15%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6d" style="--w:98%"><div class="v6-dl"><span>Practical Value</span><span class="v6-ds">9.8 · 15%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6d" style="--w:93%"><div class="v6-dl"><span>Original Insight</span><span class="v6-ds">9.3 · 10%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6d" style="--w:96%"><div class="v6-dl"><span>Prose Quality</span><span class="v6-ds">9.6 · 10%</span></div><div class="v6-db"><div class="v6-dbf"></div></div></div>
+            <div class="v6-tot">
+              <div class="v6-ts">9.7</div>
+              <div class="v6-tr">
+                <div class="v6-td">✓ APPROVED</div>
+                <div class="v6-tl">Iteration 1 of max 3</div>
+              </div>
+              <div class="v6-thresh">Min 9.0<br>per dim</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V7: ORCHESTRATOR -->
+        <div class="view" id="view7">
+          <div class="v7">
+            <div class="v7-hdr">Orchestrator · State Machine</div>
+            <div class="v7-grid">
+              <div class="v7s dn"><div class="v7-si"></div><div class="v7-sn">IDLE → INIT</div><div class="v7-sd">Config loaded</div></div>
+              <div class="v7s dn"><div class="v7-si"></div><div class="v7-sn">RESEARCHING</div><div class="v7-sd">research.md written</div></div>
+              <div class="v7s dn"><div class="v7-si"></div><div class="v7-sn">ANALYZING</div><div class="v7-sd">Deutsch tests passed</div></div>
+              <div class="v7s dn"><div class="v7-si"></div><div class="v7-sn">WRITING</div><div class="v7-sd">6 formats generated</div></div>
+              <div class="v7s dn"><div class="v7-si"></div><div class="v7-sn">EDITING</div><div class="v7-sd">Score 9.4 → approved</div></div>
+              <div class="v7s on"><div class="v7-si"></div><div class="v7-sn">CODEX GATE</div><div class="v7-sd">Brutal critic active</div></div>
+              <div class="v7s"><div class="v7-si"></div><div class="v7-sn">PUBLISHING</div><div class="v7-sd">Pending approval</div></div>
+              <div class="v7s"><div class="v7-si"></div><div class="v7-sn">COMPLETED</div><div class="v7-sd">All formats live</div></div>
+            </div>
+            <div class="v7-log"><span style="color:var(--purple)">▸</span> checkpoint saved: editing_complete<br><span style="color:var(--purple)">▸</span> handoff → codex_brutal_critic<br><span style="color:var(--cyan)">▸</span> awaiting CODEX score…</div>
+            <div class="v7-ckpt"><span class="v7-ci">💾</span><span class="v7-ct">Checkpoint: editing_complete.json · recoverable at any phase</span></div>
+          </div>
+        </div>
+
+      </div><!-- /wbody -->
+    </div><!-- /aw -->
+  </div><!-- /left -->
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right">
+
+    <!-- S0: HERO -->
+    <section class="section" id="s0">
+      <div class="eyebrow">Content Factory v2</div>
+      <h1 class="stitle">Agentic content that<br>survives hostile review.</h1>
+      <p class="ssub">A 4-phase production system built on David Deutsch's epistemological framework. Not a prompt chain — a systematic error-elimination pipeline where each agent can only criticise completed work from the phase before it.</p>
+      <div class="hero-stats">
+        <div><div class="stat-v">4</div><div class="stat-l">Phases</div></div>
+        <div><div class="stat-v">5</div><div class="stat-l">Agents</div></div>
+        <div><div class="stat-v">9.5</div><div class="stat-l">Quality gate</div></div>
+        <div><div class="stat-v">6</div><div class="stat-l">Output formats</div></div>
+      </div>
+      <div class="sim-btn" onclick="startSim()"><span>▶</span> Simulate the full pipeline</div>
+    </section>
+
+    <!-- S1: THE PROBLEM -->
+    <section class="section" id="s1">
+      <div class="eyebrow"><span class="ptag tr">The Problem</span></div>
+      <h2 class="stitle">Single-shot AI content<br>has no error correction.</h2>
+      <p class="ssub">Generic AI generates plausible-sounding prose without mechanism. It can't distinguish a good explanation from a confident-sounding bad one — because there's no criticism phase, no hostile review, no quality gate.</p>
+      <div class="scompare">
+        <div class="sbox sb-bad">
+          <div class="sbox-n">4.2</div>
+          <div class="sbox-l">Generic AI Draft</div>
+          <div class="sbox-s">Unfalsifiable claims, selection bias, no steelmanning</div>
+        </div>
+        <div class="sbox sb-good">
+          <div class="sbox-n">9.7</div>
+          <div class="sbox-l">Content Factory Output</div>
+          <div class="sbox-s">Passes CODEX brutal critic at ≥ 9.5 threshold</div>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="card-icon">🎭</div><div class="card-title" style="color:var(--red)">No error detection</div><div class="card-text">Single-shot generation has no mechanism to catch unfalsifiable claims, selection bias, or missing counterarguments.</div></div>
+        <div class="card"><div class="card-icon">🪞</div><div class="card-title" style="color:var(--red)">Confident mediocrity</div><div class="card-text">LLMs produce high-confidence prose regardless of explanatory quality. There's no quality gate, so everything passes.</div></div>
+        <div class="card"><div class="card-icon">📉</div><div class="card-title" style="color:var(--red)">No criticism possible</div><div class="card-text">Deutsch: good explanations survive hostile criticism. AI content never faces it — so it never has to be good.</div></div>
+        <div class="card"><div class="card-icon">🔁</div><div class="card-title" style="color:var(--cyan)">The fix: sequential agents</div><div class="card-text">Each phase produces completed work. The next phase criticises it. Error correction happens at every stage.</div></div>
+      </div>
+    </section>
+
+    <!-- S2: RESEARCH -->
+    <section class="section" id="s2">
+      <div class="eyebrow"><span class="ptag tc">Phase 1</span></div>
+      <h2 class="stitle" style="color:var(--cyan)">Research</h2>
+      <p class="ssub">The Researcher doesn't just search — it first classifies the topic along four dimensions to generate a precise prompt, then runs the Gemini CLI in live search mode against academic, contrarian, and industry sources simultaneously.</p>
+      <div class="flow">
+        <div class="fstep">
+          <div class="fstep-l"><div class="fdot" style="background:rgba(0,210,255,.15);border:1px solid rgba(0,210,255,.4);color:var(--cyan)">1</div><div class="fline"></div></div>
+          <div class="fcontent"><div class="ftitle" style="color:var(--cyan)">Dynamic Prompt Generator</div><div class="fdesc">Classifies domain (technical/philosophical/practical), depth (surface/deep), controversy (settled/polarised), and temporal sensitivity — then crafts a targeted research prompt accordingly.</div></div>
+        </div>
+        <div class="fstep">
+          <div class="fstep-l"><div class="fdot" style="background:rgba(0,210,255,.15);border:1px solid rgba(0,210,255,.4);color:var(--cyan)">2</div><div class="fline"></div></div>
+          <div class="fcontent"><div class="ftitle" style="color:var(--cyan)">Gemini CLI — Live Web Search</div><div class="fdesc">Executes the prompt via Gemini CLI in headless mode, pulling from academic papers, industry reports, primary sources, and multi-modal content (PDFs, datasets, video transcripts).</div></div>
+        </div>
+        <div class="fstep">
+          <div class="fstep-l"><div class="fdot" style="background:rgba(0,210,255,.15);border:1px solid rgba(0,210,255,.4);color:var(--cyan)">3</div></div>
+          <div class="fcontent"><div class="ftitle" style="color:var(--cyan)">Research Validator</div><div class="fdesc">Three gates must all pass: source diversity (3+ domains), steelman requirement (minority views represented), and evidence hygiene (all claims traceable to primary sources). Fails → re-queries Gemini.</div></div>
+        </div>
+      </div>
+      <div class="dquote">"The growth of knowledge depends entirely on the existence of disagreement." <div class="dattr">— David Deutsch · The Beginning of Infinity</div></div>
+    </section>
+
+    <!-- S3: ANALYSIS -->
+    <section class="section" id="s3">
+      <div class="eyebrow"><span class="ptag tg">Phase 2</span></div>
+      <h2 class="stitle" style="color:var(--green)">Analysis</h2>
+      <p class="ssub">The Analyzer applies Deutsch's epistemological framework to the complete research output. It doesn't summarise — it stress-tests every explanation against five distinct failure modes that separate good explanations from plausible-sounding ones.</p>
+      <table class="stbl">
+        <thead><tr><th>Test</th><th>What it catches</th><th>Failure action</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--green)">Hard-to-Vary</td><td>Explanations where details can change arbitrarily without breaking the theory</td><td>Rebuild with fixed mechanism</td></tr>
+          <tr><td style="color:var(--green)">Falsifiability</td><td>Claims with no conceivable refutation — unfalsifiable by design</td><td>Add scope conditions or drop claim</td></tr>
+          <tr><td style="color:var(--green)">Best Explanation</td><td>Accepting first plausible explanation when a simpler rival exists</td><td>Document rival, compare evidence</td></tr>
+          <tr><td style="color:var(--green)">Arbitrariness</td><td>Decorative claims that don't affect the explanation's logical structure</td><td>Remove or make load-bearing</td></tr>
+          <tr><td style="color:var(--green)">Problem-Solution Fit</td><td>Explanations that answer a different question than the one posed</td><td>Realign explanation to stated problem</td></tr>
+        </tbody>
+      </table>
+      <p class="ssub" style="margin-bottom:0">All 5 tests must pass before the analysis.md is handed to the Writer. The Analyzer loops internally — it doesn't escalate failures, it fixes them.</p>
+    </section>
+
+    <!-- S4: WRITING -->
+    <section class="section" id="s4">
+      <div class="eyebrow"><span class="ptag tgo">Phase 3</span></div>
+      <h2 class="stitle" style="color:var(--gold)">Writing</h2>
+      <p class="ssub">The Writer translates validated analysis into six output formats simultaneously. Each format has a dedicated template with format-specific rules — an article is not a thread is not a LinkedIn post. The same insight, six different rhetorical structures.</p>
+      <table class="stbl">
+        <thead><tr><th>Format</th><th>Template</th><th>Constraint</th></tr></thead>
+        <tbody>
+          <tr><td>📄 Long-form Article</td><td>article-template.md</td><td>Hook → insight chain → call to think</td></tr>
+          <tr><td>🐦 Twitter/X Thread</td><td>twitter-thread-template-v2.md</td><td>Tweet 1 = full argument, 2–22 = proof</td></tr>
+          <tr><td>💼 LinkedIn Post</td><td>linkedin-post-template.md</td><td>Contrarian opener, no jargon, CTA</td></tr>
+          <tr><td>📧 Newsletter</td><td>newsletter-template.md</td><td>Reader-first, one actionable takeaway</td></tr>
+          <tr><td>🎬 YouTube Script</td><td>youtube-script-template.md</td><td>Visual hooks, retention loops every 90s</td></tr>
+          <tr><td>🎙️ Podcast Notes</td><td>podcast-notes-template.md</td><td>Timestamps, quotes, chapter markers</td></tr>
+        </tbody>
+      </table>
+      <p class="ssub" style="margin-bottom:0">If a draft fails the Writer's own internal validator, it revises before passing to the Editor. The Editor never sees a draft the Writer itself wouldn't approve.</p>
+    </section>
+
+    <!-- S5: EDITING -->
+    <section class="section" id="s5">
+      <div class="eyebrow"><span class="ptag tm">Phase 4</span></div>
+      <h2 class="stitle" style="color:var(--magenta)">Editing</h2>
+      <p class="ssub">The Editor runs a multi-pass review across all six formats: fact-verification, logic integrity, style consistency, engagement quality, and format-specific adherence. Content must score ≥ 9.3/10 — or it returns to the Writer with ranked, specific fixes.</p>
+      <div class="cards">
+        <div class="card"><div class="card-icon">🔬</div><div class="card-title" style="color:var(--magenta)">Fact Verification</div><div class="card-text">Every factual claim is traced back to a research.md source. Unsourced claims are flagged critical and must be removed or cited.</div></div>
+        <div class="card"><div class="card-icon">🔗</div><div class="card-title" style="color:var(--magenta)">Logic Integrity</div><div class="card-text">The argument chain is tested for validity. Gaps between premises and conclusions are returned as blocking issues.</div></div>
+        <div class="card"><div class="card-icon">🎯</div><div class="card-title" style="color:var(--magenta)">Engagement Quality</div><div class="card-text">First 100 words, hook strength, pacing, and ending. Reader must not be able to stop reading after the first sentence.</div></div>
+        <div class="card"><div class="card-icon">📐</div><div class="card-title" style="color:var(--magenta)">Format Adherence</div><div class="card-text">Each format is validated against its template's structural rules. A LinkedIn post that reads like an article fails immediately.</div></div>
+      </div>
+      <p class="ssub" style="margin-bottom:0">Threshold: <strong style="color:var(--magenta)">9.3 / 10</strong>. If met, drafts advance to Phase 4.5 — the CODEX Brutal Critic. The Editor's approval is necessary but not sufficient for publication.</p>
+    </section>
+
+    <!-- S6: CODEX -->
+    <section class="section" id="s6">
+      <div class="eyebrow"><span class="ptag to">Phase 4.5</span></div>
+      <h2 class="stitle" style="color:var(--orange)">CODEX Brutal Critic</h2>
+      <p class="ssub">The final gatekeeper before publication. Powered by OpenAI's Codex CLI in headless mode. Its job: find what the Editor missed. The threshold is 9.5 — higher than the Editor's 9.3 — because the gap between excellent and world-class is exactly where this agent lives.</p>
+      <div class="cchecks">
+        <div class="cc"><div class="cc-n">Claim Stress-Test</div><div class="cc-d">What would a hostile domain expert immediately attack?</div></div>
+        <div class="cc"><div class="cc-n">Counterexample Search</div><div class="cc-d">Generalisations that break under real-world cases.</div></div>
+        <div class="cc"><div class="cc-n">Evidence Sufficiency</div><div class="cc-d">Strong claims require proportionate evidence strength.</div></div>
+        <div class="cc"><div class="cc-n">Hard-to-Vary Test</div><div class="cc-d">Would the argument survive any detail change?</div></div>
+        <div class="cc"><div class="cc-n">Falsifiability Check</div><div class="cc-d">What evidence, in principle, could prove it wrong?</div></div>
+        <div class="cc"><div class="cc-n">Originality Test</div><div class="cc-d">Genuinely new or rearranged familiar insights?</div></div>
+        <div class="cc"><div class="cc-n">Intellectual Charity</div><div class="cc-d">Are the best versions of opposing views engaged?</div></div>
+        <div class="cc"><div class="cc-n">Predictive Power</div><div class="cc-d">Does the explanation reach into adjacent domains?</div></div>
+      </div>
+      <div class="iters">
+        <div class="iter"><div class="iter-num">1</div><div class="iter-lbl">Iteration 1</div><div class="iter-desc">Full CODEX CLI review. Ranked issues returned to Writer if score &lt; 9.5.</div></div>
+        <div class="iter"><div class="iter-num">2</div><div class="iter-lbl">Iteration 2</div><div class="iter-desc">Re-run CODEX on revised content. Focus on remaining blocking issues.</div></div>
+        <div class="iter escalate"><div class="iter-num">3</div><div class="iter-lbl">Escalation</div><div class="iter-desc">After 3 failures: human decision required. No automatic approval below 9.5.</div></div>
+      </div>
+    </section>
+
+    <!-- S7: ORCHESTRATOR -->
+    <section class="section" id="s7">
+      <div class="eyebrow"><span class="ptag tp">Orchestrator</span></div>
+      <h2 class="stitle" style="color:var(--purple)">State Machine &amp;<br>Recovery</h2>
+      <p class="ssub">The orchestrator runs as a state machine with full checkpointing at every phase boundary. If anything fails — API error, validation failure, network timeout — the pipeline resumes from the last saved checkpoint, not from scratch.</p>
+      <div class="sf">
+        <div class="sfrow sf-done"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">IDLE → INITIALIZING</div><div class="sf-detail">Config loaded · topic validated</div></div></div>
+        <div class="sfrow sf-done"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">RESEARCHING</div><div class="sf-detail">Gemini CLI · checkpoint: research_complete.json</div></div></div>
+        <div class="sfrow sf-done"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">ANALYZING</div><div class="sf-detail">Deutsch 5-tests · checkpoint: analysis_complete.json</div></div></div>
+        <div class="sfrow sf-done"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">WRITING</div><div class="sf-detail">6 formats · checkpoint: writing_complete.json</div></div></div>
+        <div class="sfrow sf-done"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">EDITING</div><div class="sf-detail">Score 9.4 ≥ 9.3 · checkpoint: editing_complete.json</div></div></div>
+        <div class="sfrow sf-active"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">CODEX GATE</div><div class="sf-detail">CODEX CLI running · iteration 1 of 3</div></div></div>
+        <div class="sfrow"><div class="sfl"><div class="sf-dot"></div><div class="sf-line"></div></div><div class="sf-info"><div class="sf-name">AWAITING_USER or PUBLISHING</div><div class="sf-detail">Score ≥ 9.5 → auto-publish · &lt; 9.5 after iter 3 → human</div></div></div>
+        <div class="sfrow"><div class="sfl"><div class="sf-dot"></div></div><div class="sf-info"><div class="sf-name">COMPLETED</div><div class="sf-detail">All formats published · metrics written to telemetry</div></div></div>
+      </div>
+      <div class="cli">
+        <div><span class="clip">$</span> <span class="clic">content-factory run "Why goal-setting fails" --formats article,thread,linkedin</span></div>
+        <div><span class="clid">  → Resume from checkpoint: editing_complete.json</span></div>
+        <div><span class="clid">  → CODEX evaluation: iteration 1/3</span></div>
+        <div><span class="clid">  → Score 9.7 ≥ 9.5 · APPROVED</span></div>
+        <div><span class="clip">✓</span> <span class="clic">Published · outputs/why-goal-setting-fails/final/</span></div>
+      </div>
+      <p class="ssub" style="margin-bottom:0;font-family:var(--mono);font-size:12px;color:var(--text3)">View on GitHub → <span style="color:var(--cyan)">github.com/KiranMohan-92/content-factory</span></p>
+    </section>
+
+  </div><!-- /right -->
+</div><!-- /layout -->
+
+<script>
+const sections = document.querySelectorAll('.section');
+const views = document.querySelectorAll('.view');
+const snavItems = document.querySelectorAll('.sni');
+const aw = document.getElementById('aw');
+const wtitle = document.getElementById('wtitle');
+const wbadge = document.getElementById('wbadge');
+
+const meta = [
+  {a:'0', title:'content-factory — pipeline', badge:'v2.3'},
+  {a:'1', title:'quality-scanner.py — errors', badge:'SCAN'},
+  {a:'2', title:'gemini-cli — research', badge:'LIVE'},
+  {a:'3', title:'analyzer — deutsch-framework', badge:'TEST'},
+  {a:'4', title:'writer-agent — formats', badge:'GEN'},
+  {a:'5', title:'editor-agent — quality-gate', badge:'9.3'},
+  {a:'6', title:'codex-brutal-critic — eval', badge:'9.5'},
+  {a:'7', title:'orchestrator — state-machine', badge:'RUN'},
+];
+
+let current = -1;
+
+function activateSection(idx) {
+  if (idx === current) return;
+  current = idx;
+
+  // Update side nav
+  snavItems.forEach((n,i) => n.classList.toggle('active', i === idx));
+
+  // Update app window
+  const m = meta[idx];
+  aw.dataset.a = m.a;
+  wtitle.textContent = m.title;
+  wbadge.textContent = m.badge;
+
+  // Switch views
+  views.forEach((v,i) => {
+    const wasActive = v.classList.contains('active');
+    const willActive = i === idx;
+    v.classList.toggle('active', willActive);
+
+    if (willActive && !wasActive) {
+      // Trigger view-specific animations
+      triggerViewAnim(idx, v);
+    }
+  });
+}
+
+function triggerViewAnim(idx, v) {
+  if (idx === 2) { // Research terminal
+    const lines = v.querySelectorAll('.v2-ln');
+    lines.forEach((l,i) => {
+      l.classList.remove('show');
+      setTimeout(() => l.classList.add('show'), i * 180);
+    });
+  }
+  if (idx === 3) { // Deutsch tests
+    const tests = v.querySelectorAll('.v3t');
+    tests.forEach(t => { t.classList.remove('go'); });
+    setTimeout(() => tests.forEach(t => t.classList.add('go')), 400);
+  }
+  if (idx === 4) { // Writer formats
+    const fmts = v.querySelectorAll('.v4f');
+    fmts.forEach(f => { f.classList.remove('go'); });
+    setTimeout(() => fmts.forEach(f => f.classList.add('go')), 300);
+  }
+  if (idx === 5) { // Editor gate
+    const bf = document.getElementById('v5bf');
+    if (bf) { bf.classList.remove('go'); setTimeout(() => bf.classList.add('go'), 300); }
+  }
+  if (idx === 6) { // CODEX scorer
+    const dims = v.querySelectorAll('.v6d');
+    dims.forEach(d => d.classList.remove('go'));
+    setTimeout(() => dims.forEach(d => d.classList.add('go')), 300);
+  }
+}
+
+// Scrollspy
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.intersectionRatio > 0.45) {
+      const idx = Array.from(sections).indexOf(e.target);
+      if (idx >= 0) activateSection(idx);
+    }
+  });
+}, { threshold: 0.45 });
+
+sections.forEach(s => observer.observe(s));
+
+// Side nav click scroll
+function scrollTo(idx) {
+  sections[idx].scrollIntoView({ behavior: 'smooth' });
+}
+
+// Init
+activateSection(0);
+
+// ── PIPELINE SIMULATOR
+const overlay = document.getElementById('simOverlay');
+const simLog = document.getElementById('simLog');
+const simFinal = document.getElementById('simFinal');
+let simRunning = false;
+
+async function startSim() {
+  if (simRunning) return;
+  simRunning = true;
+  overlay.classList.add('show');
+
+  // Reset state
+  simFinal.classList.remove('show');
+  simLog.textContent = '';
+  simLog.className = 'sim-log';
+  for (let i = 0; i < 5; i++) {
+    const ph = document.getElementById('sph' + i);
+    const fill = document.getElementById('spf' + i);
+    const st = document.getElementById('sps' + i);
+    const conn = document.getElementById('sc' + (i-1));
+    ph.className = 'sim-ph';
+    fill.style.width = '0%';
+    st.textContent = '';
+    if (conn) conn.classList.remove('active');
+  }
+
+  const phases = [
+    {id:0, name:'Research', fill:'spf0', st:'sps0', conn:null, dur:2800, logs:['Classifying domain…','Querying Gemini CLI…','14 sources found','Validation passed ✓'], color:'var(--cyan)'},
+    {id:1, name:'Analysis', fill:'spf1', st:'sps1', conn:'sc0', dur:2600, logs:['Loading research.md…','Running Deutsch tests…','5/5 tests passed','analysis.md written ✓'], color:'var(--green)'},
+    {id:2, name:'Writing', fill:'spf2', st:'sps2', conn:'sc1', dur:2400, logs:['Translating analysis…','Generating 6 formats…','Templates applied','All drafts complete ✓'], color:'var(--gold)'},
+    {id:3, name:'Editing', fill:'spf3', st:'sps3', conn:'sc2', dur:2200, logs:['Fact-checking…','Logic integrity check…','Score: 9.4/10','≥ 9.3 threshold met ✓'], color:'var(--magenta)'},
+    {id:4, name:'CODEX', fill:'spf4', st:'sps4', conn:'sc3', dur:3000, logs:['codex CLI executing…','7 dimensions evaluated…','Score: 9.7/10','≥ 9.5 APPROVED ✓'], color:'var(--orange)'},
+  ];
+
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+
+  for (const ph of phases) {
+    const phEl = document.getElementById('sph' + ph.id);
+    const fillEl = document.getElementById(ph.fill);
+    const stEl = document.getElementById(ph.sps || ('sps' + ph.id));
+
+    // Activate connector
+    if (ph.conn) document.getElementById(ph.conn).classList.add('active');
+
+    phEl.className = 'sim-ph active';
+    simLog.textContent = ph.logs[0];
+    simLog.className = 'sim-log info';
+
+    for (let li = 0; li < ph.logs.length; li++) {
+      simLog.textContent = ph.logs[li];
+      stEl.textContent = ph.logs[li];
+      fillEl.style.width = ((li + 1) / ph.logs.length * 100) + '%';
+      await delay(ph.dur / ph.logs.length);
+    }
+
+    phEl.className = 'sim-ph done';
+    if (ph.conn) document.getElementById(ph.conn).classList.remove('active');
+    await delay(200);
+  }
+
+  simLog.textContent = 'Pipeline complete · 9.7/10 · Published to 4 formats';
+  simLog.className = 'sim-log ok';
+  await delay(400);
+  simFinal.classList.add('show');
+  simRunning = false;
+}
+
+function closeSim() {
+  overlay.classList.remove('show');
+  simRunning = false;
+}
+</script>
+</body>
+</html>

@@ -141,6 +141,64 @@ flowchart LR
 
 ---
 
+## Phase 4.5 — CODEX Brutal Critic Agent
+
+The CODEX Brutal Critic Agent is the **final gatekeeper before publication**. It sits between Editor approval and the publication step, powered by OpenAI's `codex` CLI running in headless mode. Its single purpose: find what the Editor missed and refuse to let anything mediocre through.
+
+```mermaid
+flowchart TD
+    EDITOR_PASS["✂️ Editor Agent\nApproves at ≥ 9.3/10"]
+
+    subgraph CODEX_PHASE["Phase 4.5 — CODEX Brutal Critic"]
+        CB1["Execute codex CLI\nin headless mode"]
+
+        subgraph DIMENSIONS["7 Evaluation Dimensions"]
+            D1["Argument Strength · 20%"]
+            D2["Factual Precision · 15%"]
+            D3["Logical Structure · 15%"]
+            D4["Counterargument Depth · 15%"]
+            D5["Practical Value · 15%"]
+            D6["Original Insight · 10%"]
+            D7["Prose Quality · 10%"]
+        end
+
+        CB2["Hostile stress-test\nevery claim"]
+        CB3{"CODEX Score\n≥ 9.5 / 10?"}
+        FEEDBACK[("codex-feedback.md\nJSON + ranked issues\n+ path to 9.5")]
+    end
+
+    PUBLISH(["🚀 Final Publication"])
+    REVISE["↩ Return to Writer\nwith specific fixes"]
+    ESCALATE["⚠️ Escalate to Human\nafter 3 failed iterations"]
+
+    EDITOR_PASS --> CB1
+    DIMENSIONS --> CB2 --> CB3
+    CB1 --> DIMENSIONS
+    CB3 -->|"APPROVE ≥ 9.5"| FEEDBACK --> PUBLISH
+    CB3 -->|"REJECT < 9.5 · Iter 1-2"| REVISE
+    CB3 -->|"REJECT < 9.5 · Iter 3"| ESCALATE
+```
+
+### Why a second quality gate?
+
+The Editor approves at **9.3** — excellent, publishable. The CODEX Critic requires **9.5** — world-class, survives hostile review. The gap between the two is where real excellence lives. The Editor catches surface issues (structure, tone, engagement); the CODEX Critic runs a forensic evaluation that an expert hostile to the piece would run.
+
+| Check | What it finds |
+|---|---|
+| Claim stress-test | What a hostile expert would immediately attack |
+| Counterexample search | Generalisations that break under real cases |
+| Evidence sufficiency | Strong claims without proportionate support |
+| Alternative explanations | Whether objections are genuinely considered or performative |
+| Hard-to-vary test | Whether the explanation would survive detail changes |
+| Falsifiability | Whether there exists any evidence that could prove it wrong |
+| Originality test | Whether the insight is genuinely new or rearranged familiarity |
+
+### Iteration mechanics
+
+The agent runs up to **3 CODEX evaluation loops**. Each rejected iteration returns specific, ranked fixes to the Writer. After 3 failures, the system escalates to a human with options: revise further, return to an earlier phase, or abandon the piece. There is no automatic approval below 9.5 — no exceptions.
+
+---
+
 ## Repo Structure
 
 ```
@@ -217,3 +275,4 @@ content-factory dashboard --view full
 | `EXTERNAL-REVIEW-LESSONS.md` | What broke in external review & how the system was upgraded |
 | `AGENTS.md` | Orchestration instructions for Claude |
 | `GEMINI.md` | Orchestration instructions for Gemini |
+| `agents/codex-brutal-critic-agent.md` | CODEX Brutal Critic — Phase 4.5 final gatekeeper |
